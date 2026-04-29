@@ -11,7 +11,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SimpleTakeNotes">
         <activity
-            android:name=".mvc_example.MVCActivity"
+            android:name=".presentation.NotesActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,10 +20,11 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".mvc_example.MVCActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
-            android:exported="true">
-
-        </activity>
+            android:exported="false" />
     </application>
 
 </manifest>
