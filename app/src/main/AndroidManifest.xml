@@ -11,6 +11,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SimpleTakeNotes">
         <activity
+            android:name=".presentation.FormNoteActivity"
+            android:exported="false" />
+        <activity
             android:name=".presentation.NotesActivity"
             android:exported="true">
             <intent-filter>

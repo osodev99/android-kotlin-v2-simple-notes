@@ -1,8 +1,10 @@
 package com.codebear.simpletakenotes.presentation
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -14,6 +16,14 @@ class NotesActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityNotesBinding
     private var canShowList = true
+
+    private val resultForm = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val data = result.data?.extras?.getString("data")
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,14 +48,11 @@ class NotesActivity : AppCompatActivity() {
             showList()
         }
 
-//        binding.fabAdd.setOnClickListener {
-//            canShowList = !canShowList
-//            if (canShowList) {
-//                showList()
-//            } else {
-//                hideList()
-//            }
-//        }
+        binding.fabAdd.setOnClickListener {
+            val intent = Intent(this,
+                FormNoteActivity::class.java)
+            resultForm.launch(intent)
+        }
 
     }
 
