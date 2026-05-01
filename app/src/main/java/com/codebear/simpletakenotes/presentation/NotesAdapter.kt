@@ -7,9 +7,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.codebear.simpletakenotes.databinding.ItemNoteBinding
 import com.codebear.simpletakenotes.domain.models.NoteModel
 
+
 class NotesAdapter(
-    val items: List<NoteModel>
+    val items: MutableList<NoteModel>
 ) : RecyclerView.Adapter<NotesAdapter.NotesViewHolder>() {
+
+    fun insertNote(note: NoteModel) {
+        items.add(note)
+        notifyDataSetChanged()
+    }
 
     override fun getItemCount(): Int = items.size
 

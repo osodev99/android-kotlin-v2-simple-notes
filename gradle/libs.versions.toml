@@ -9,6 +9,7 @@ material = "1.13.0"
 activity = "1.13.0"
 constraintlayout = "2.2.1"
 recyclerview = "1.4.0"
+parcelize = "2.3.21"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -23,4 +24,5 @@ androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-
+#id("org.jetbrains.kotlin.plugin.parcelize") version "2.4.0-Beta2"
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "parcelize" }

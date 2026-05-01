@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.codebear.simpletakenotes.databinding.ActivityFormNoteBinding
+import com.codebear.simpletakenotes.domain.models.NoteModel
 
 class FormNoteActivity : AppCompatActivity() {
     private lateinit var binding: ActivityFormNoteBinding
@@ -28,10 +29,13 @@ class FormNoteActivity : AppCompatActivity() {
 
         binding.btnSaveNote.setOnClickListener {
             if (isValidForm()) {
+                val title = binding.etTitle.text.toString()
+                val content = binding.etContent.text.toString()
+
                 val intent = Intent()
                 intent.putExtra(
                     "data",
-                    "${binding.etTitle.text.toString()} - ${binding.etContent.text.toString()}"
+                    NoteModel(title = title, content = content)
                 )
                 setResult(RESULT_OK, intent)
                 finish()
