@@ -13,7 +13,7 @@ class NotesAdapter(
 ) : RecyclerView.Adapter<NotesAdapter.NotesViewHolder>() {
 
     fun insertNote(note: NoteModel) {
-        items.add(note)
+//        items.add(note)
         notifyDataSetChanged()
     }
 

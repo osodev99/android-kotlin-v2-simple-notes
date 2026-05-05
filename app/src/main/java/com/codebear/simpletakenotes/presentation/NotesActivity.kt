@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -17,9 +18,8 @@ import com.codebear.simpletakenotes.domain.models.NoteModel
 class NotesActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityNotesBinding
+    private val vm by viewModels<NotesVM>()
     private var adapter: NotesAdapter? = null
-    private val notes = mutableListOf<NoteModel>()
-
     private val resultForm = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -31,20 +31,15 @@ class NotesActivity : AppCompatActivity() {
             }
 
             if (data != null) {
-                data.id = notes.size + 1
-                Log.e("TAG", "toInsert: $data")
+                vm.insertNote(data)
                 adapter?.insertNote(data)
-                if (adapter != null && adapter!!.items.isEmpty()) {
-                    hideList()
-                } else {
-                    showList()
-                }
             }
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        vm = ViewModelProvider.create(this)[NotesVM::class]
         enableEdgeToEdge()
         binding = ActivityNotesBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -54,17 +49,19 @@ class NotesActivity : AppCompatActivity() {
             insets
         }
 
-        adapter = NotesAdapter(items = notes)
+        vm.notesObs.observe(this) {
+            if (it.isEmpty()) {
+                hideList()
+            } else {
+                showList()
+            }
+        }
+
+        adapter = NotesAdapter(items = vm.notes)
         val llm = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         binding.rvNotes.adapter = adapter
         binding.rvNotes.layoutManager = llm
-
-        if (adapter != null && adapter!!.items.isEmpty()) {
-            hideList()
-        } else {
-            showList()
-        }
 
         binding.fabAdd.setOnClickListener {
             val intent = Intent(
@@ -73,9 +70,24 @@ class NotesActivity : AppCompatActivity() {
             )
             resultForm.launch(intent)
         }
-
     }
 
+//    override fun onSaveInstanceState(outState: Bundle) {
+//        super.onSaveInstanceState(outState)
+//        outState.putParcelableArray("notes", notes.toTypedArray())
+//    }
+
+
+//        val savedNotes =
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//                savedInstanceState?.getParcelableArray("notes", NoteModel::class.java)
+//            } else {
+//                savedInstanceState?.getParcelableArray("notes")
+//            }
+
+    //        if (savedNotes != null) {
+//            notes.addAll(0, (savedNotes as Array<NoteModel>).toMutableList())
+//        }
     fun hideList() {
         binding.rvNotes.visibility = View.GONE
         binding.llMessage.visibility = View.VISIBLE
