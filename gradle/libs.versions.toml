@@ -12,6 +12,8 @@ recyclerview = "1.4.0"
 parcelize = "2.3.21"
 lifecycle = "2.10.0"
 coroutines = "1.10.2"
+ksp = "2.3.4"
+room = "2.8.4"
 
 
 [libraries]
@@ -28,8 +30,12 @@ androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview"
 lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 lifecycle-livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
 coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+room-runtime = {group = "androidx.room", name = "room-runtime", version.ref = "room"}
+room-ktx = {group = "androidx.room", name = "room-ktx", version.ref = "room"}
+room-compiler = {group = "androidx.room", name = "room-compiler", version.ref = "room"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 #id("org.jetbrains.kotlin.plugin.parcelize") version "2.4.0-Beta2"
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "parcelize" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

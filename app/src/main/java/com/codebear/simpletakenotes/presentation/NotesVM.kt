@@ -1,34 +1,51 @@
 package com.codebear.simpletakenotes.presentation
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.codebear.simpletakenotes.data.AppDatabase
 import com.codebear.simpletakenotes.domain.models.NoteModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class NotesVM : ViewModel() {
-    val notes = mutableListOf<NoteModel>()
-    val notesObs = MutableLiveData<MutableList<NoteModel>>(mutableListOf())
-    val nroObs = MutableLiveData<Int>()
+class NotesVM(application: Application) : AndroidViewModel(application) {
+    //    val notesObs = MutableLiveData<MutableList<NoteModel>>(mutableListOf())
+    val notesObs = MutableStateFlow<List<NoteModel>>(emptyList())
+    private val db = AppDatabase.getDb(application.baseContext)
+    private val notesDao = db.notesDao()
 
+    init {
+        observeNotes()
+    }
 
     fun insertNote(note: NoteModel) {
         viewModelScope.launch(Dispatchers.IO) {
-            fakeDelay()
-            note.id = notes.size + 1
-            notes.add(note)
-
-            withContext(Dispatchers.Main) {
-                notesObs.value = notes
-                nroObs.value = notes.size
-            }
+            notesDao.insert(note)
         }
     }
 
-    suspend fun fakeDelay() {
-        delay(30000L)
+    fun deleteNote(note: NoteModel) {
+        viewModelScope.launch(Dispatchers.IO) {
+            notesDao.deleteNotes(note)
+        }
+    }
+
+    fun updateNote(note: NoteModel) {
+        viewModelScope.launch(Dispatchers.IO) {
+            notesDao.updateNote(note)
+        }
+    }
+
+    private fun observeNotes() {
+        viewModelScope.launch(Dispatchers.IO) {
+            notesDao.getAllNotes().collectLatest { list ->
+                withContext(Dispatchers.Main) {
+                    notesObs.value = list
+                }
+            }
+        }
     }
 }

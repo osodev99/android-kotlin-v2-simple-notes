@@ -19,7 +19,8 @@ class NotesDatabase {
             NoteModel(
                 id = 5,
                 title = "Frase motivacional",
-                content = "La constancia vence lo que la dicha no alcanza."
+                content = "La constancia vence lo que la dicha no alcanza.",
+                createdAt = System.currentTimeMillis(),
             )
         )
         return notes

@@ -1,6 +1,7 @@
 package com.codebear.simpletakenotes.presentation
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.activity.enableEdgeToEdge
@@ -24,8 +25,12 @@ class FormNoteActivity : AppCompatActivity() {
             insets
         }
 
-        val mArguments = intent.extras?.getInt("id")
-        setupUI(isUpdate = (mArguments != null))
+        val mArguments = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.extras?.getParcelable("data", NoteModel::class.java)
+        } else {
+            intent.extras?.getParcelable<NoteModel>("data")
+        }
+        setupUI(isUpdate = (mArguments != null), mArguments)
 
         binding.btnSaveNote.setOnClickListener {
             if (isValidForm()) {
@@ -35,30 +40,66 @@ class FormNoteActivity : AppCompatActivity() {
                 val intent = Intent()
                 intent.putExtra(
                     "data",
-                    NoteModel(title = title, content = content)
+                    NoteModel(
+                        title = title,
+                        content = content,
+                        createdAt = System.currentTimeMillis()
+                    )
                 )
-                setResult(RESULT_OK, intent)
+                setResult(NotesActivity.RESULT_SAVE, intent)
                 finish()
             }
         }
 
         binding.btnUpdate.setOnClickListener {
             if (isValidForm()) {
-                // update note
+                val title = binding.etTitle.text.toString()
+                val content = binding.etContent.text.toString()
+
+                val intent = Intent()
+                intent.putExtra(
+                    "data",
+                    NoteModel(
+                        id = mArguments?.id,
+                        title = title,
+                        content = content,
+                        createdAt = System.currentTimeMillis()
+                    )
+                )
+                setResult(NotesActivity.RESULT_UPDATE, intent)
+                finish()
             }
         }
 
-        binding.btnCancel.setOnClickListener {
-            finish()
+        binding.btnDelete.setOnClickListener {
+            if (isValidForm()) {
+                val title = binding.etTitle.text.toString()
+                val content = binding.etContent.text.toString()
+
+                val intent = Intent()
+                intent.putExtra(
+                    "data",
+                    NoteModel(
+                        id = mArguments?.id,
+                        title = title,
+                        content = content,
+                        createdAt = System.currentTimeMillis()
+                    )
+                )
+                setResult(NotesActivity.RESULT_DELETE, intent)
+                finish()
+            }
         }
     }
 
 
-    private fun setupUI(isUpdate: Boolean) {
+    private fun setupUI(isUpdate: Boolean, noteModel: NoteModel?) {
         if (isUpdate) {
             binding.llUpdateButtons.visibility = View.VISIBLE
             binding.btnSaveNote.visibility = View.GONE
             binding.tvTitleForm.text = "Actualizacion"
+            binding.etTitle.setText(noteModel?.title ?: "")
+            binding.etContent.setText(noteModel?.content ?: "")
         } else {
             binding.llUpdateButtons.visibility = View.GONE
             binding.btnSaveNote.visibility = View.VISIBLE

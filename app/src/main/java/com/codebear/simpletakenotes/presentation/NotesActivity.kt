@@ -3,7 +3,6 @@ package com.codebear.simpletakenotes.presentation
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -11,6 +10,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.codebear.simpletakenotes.databinding.ActivityNotesBinding
 import com.codebear.simpletakenotes.domain.models.NoteModel
@@ -23,17 +23,22 @@ class NotesActivity : AppCompatActivity() {
     private val resultForm = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            val data = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                result.data?.extras?.getParcelable("data", NoteModel::class.java)
-            } else {
-                result.data?.extras?.getParcelable<NoteModel>("data")
-            }
+        val data = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            result.data?.extras?.getParcelable("data", NoteModel::class.java)
+        } else {
+            result.data?.extras?.getParcelable<NoteModel>("data")
+        }
 
-            if (data != null) {
-                vm.insertNote(data)
-                adapter?.insertNote(data)
-            }
+        if (result.resultCode == RESULT_SAVE && data != null) {
+            vm.insertNote(data)
+        }
+
+        if (result.resultCode == RESULT_UPDATE && data != null) {
+            vm.updateNote(data)
+        }
+
+        if (result.resultCode == RESULT_DELETE && data != null) {
+            vm.deleteNote(data)
         }
     }
 
@@ -49,19 +54,30 @@ class NotesActivity : AppCompatActivity() {
             insets
         }
 
-        vm.notesObs.observe(this) {
-            if (it.isEmpty()) {
-                hideList()
-            } else {
-                showList()
-            }
-        }
-
-        adapter = NotesAdapter(items = vm.notes)
         val llm = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
-        binding.rvNotes.adapter = adapter
-        binding.rvNotes.layoutManager = llm
+        lifecycleScope.launchWhenStarted {
+            vm.notesObs.collect { notes ->
+                if (notes.isEmpty()) {
+                    hideList()
+                } else {
+                    showList()
+                }
+
+                adapter = NotesAdapter(items = notes.toMutableList()) { note ->
+                    val intent = Intent(
+                        this@NotesActivity,
+                        FormNoteActivity::class.java
+                    )
+                    intent.putExtra("data", note)
+                    resultForm.launch(intent)
+                }
+                binding.rvNotes.adapter = adapter
+                binding.rvNotes.layoutManager = llm
+            }
+
+        }
+
 
         binding.fabAdd.setOnClickListener {
             val intent = Intent(
@@ -96,5 +112,11 @@ class NotesActivity : AppCompatActivity() {
     fun showList() {
         binding.rvNotes.visibility = View.VISIBLE
         binding.llMessage.visibility = View.GONE
+    }
+
+    companion object {
+        const val RESULT_SAVE = 100;
+        const val RESULT_UPDATE = 101;
+        const val RESULT_DELETE = 102;
     }
 }
