@@ -78,6 +78,16 @@ class NotesActivity : AppCompatActivity() {
 
         }
 
+        binding.btnUrgentSave.setOnClickListener {
+            vm.insertNote(
+                NoteModel(
+                    title = "Urgente",
+                    content = binding.etUrgentNote.text.toString(),
+                    createdAt = System.currentTimeMillis()
+                )
+            )
+        }
+
 
         binding.fabAdd.setOnClickListener {
             val intent = Intent(
